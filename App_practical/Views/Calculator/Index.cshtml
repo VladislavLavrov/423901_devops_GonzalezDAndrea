@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "Calculadora";
+    var result = ViewBag.Result;
+    var error = ViewBag.Error;
+
+  
+    var left = ViewBag.Left;
+    var right = ViewBag.Right;
+    var op = ViewBag.Op as string ?? "add";
+}
+
+<h1>Calculadora Web - ASP.NET Core MVC</h1>
+
+<div class="calculator-card">
+    <form id="calcForm" method="post" asp-action="Calculate" asp-controller="Calculator">
+        <div class="row">
+            <label>Primer número</label>
+            <input type="number" step="any" name="left" id="left" required value="@(left ?? "")" />
+        </div>
+
+        <div class="row">
+            <label>Segundo número</label>
+            <input type="number" step="any" name="right" id="right" required value="@(right ?? "")" />
+        </div>
+
+        <div class="row">
+            <label>Operación</label>
+            <select name="op" id="op">
+                @if (op == "add")
+                {
+                    <option value="add" selected>Sumar (+)</option>
+                }
+                else
+                {
+                    <option value="add">Sumar (+)</option>
+                }
+
+                @if (op == "subtract")
+                {
+                    <option value="subtract" selected>Restar (-)</option>
+                }
+                else
+                {
+                    <option value="subtract">Restar (-)</option>
+                }
+
+                @if (op == "multiply")
+                {
+                    <option value="multiply" selected>Multiplicar (×)</option>
+                }
+                else
+                {
+                    <option value="multiply">Multiplicar (×)</option>
+                }
+
+                @if (op == "divide")
+                {
+                    <option value="divide" selected>Dividir (÷)</option>
+                }
+                else
+                {
+                    <option value="divide">Dividir (÷)</option>
+                }
+            </select>
+        </div>
+
+        <div class="row buttons">
+            <button type="button" id="btnComputeClient">Calcular (cliente)</button>
+            <button type="submit">Calcular (servidor)</button>
+            <button type="button" id="btnClear">Limpiar</button>
+        </div>
+    </form>
+
+    <div id="clientResult" class="result-box"></div>
+
+    @if (error != null)
+    {
+        <div class="error-box">@error</div>
+    }
+    else if (result != null)
+    {
+        <div class="server-result">Resultado (servidor): <strong>@result</strong></div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/calculator.js"></script>
+}
