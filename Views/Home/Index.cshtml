@@ -1,0 +1,21 @@
+﻿@model App_practical.Models.DataViewModel
+<div class="text-center">
+    <h1 class="display-4">Калькулятор Docker</h1>
+    <form method="post" class="mt-4">
+        <input type="text" name="value1" class="form-control mb-2" placeholder="Число 1" required />
+        <input type="text" name="value2" class="form-control mb-2" placeholder="Число 2" required />
+        <select name="operation" class="form-control mb-2">
+            <option>Сложить (+)</option>
+            <option>Вычесть (-)</option>
+            <option>Умножить (*)</option>
+            <option>Разделить (/)</option>
+            <option>Возвести в степень (^)</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Вычислить</button>
+    </form>
+    @if (Model != null) {
+        <div class="mt-4 alert @(string.IsNullOrEmpty(Model.ErrorMessage) ? "alert-success" : "alert-danger")">
+            @(string.IsNullOrEmpty(Model.ErrorMessage) ? $"Результат: {Model.Result}" : Model.ErrorMessage)
+        </div>
+    }
+</div>
