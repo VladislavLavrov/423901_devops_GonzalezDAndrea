@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\nerio\\OneDrive\\Desktop\\App_practical\\App_practical.csproj": {}
+    "C:\\Users\\nerio\\Desktop\\App_practical\\App_practical.csproj": {}
   },
   "projects": {
-    "C:\\Users\\nerio\\OneDrive\\Desktop\\App_practical\\App_practical.csproj": {
+    "C:\\Users\\nerio\\Desktop\\App_practical\\App_practical.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\nerio\\OneDrive\\Desktop\\App_practical\\App_practical.csproj",
+        "projectUniqueName": "C:\\Users\\nerio\\Desktop\\App_practical\\App_practical.csproj",
         "projectName": "App_practical",
-        "projectPath": "C:\\Users\\nerio\\OneDrive\\Desktop\\App_practical\\App_practical.csproj",
+        "projectPath": "C:\\Users\\nerio\\Desktop\\App_practical\\App_practical.csproj",
         "packagesPath": "C:\\Users\\nerio\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\nerio\\OneDrive\\Desktop\\App_practical\\obj\\",
+        "outputPath": "C:\\Users\\nerio\\Desktop\\App_practical\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
