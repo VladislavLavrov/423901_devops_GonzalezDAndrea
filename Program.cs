@@ -5,14 +5,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-// Configuración de la conexión a PostgreSQL
+
 builder.Services.AddDbContext<DatabaseContext>(
     o => o.UseNpgsql("Host=postgres;Port=5432;Database=Calculator;Username=postgres;Password=admin")
 );
 
 var app = builder.Build();
 
-// Lógica para crear la base de datos automáticamente al iniciar
+
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -35,7 +35,7 @@ app.MapControllerRoute(
 
 app.Run();
 
-// Función para esperar a que Postgres esté listo en el contenedor
+
 async Task WaitForDatabase(DatabaseContext context)
 {
     int retries = 10;
@@ -48,7 +48,7 @@ async Task WaitForDatabase(DatabaseContext context)
         catch
         {
             retries--;
-            await Task.Delay(2000);
+            await Task.Delay(3000);
         }
     }
 }

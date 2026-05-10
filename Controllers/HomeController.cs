@@ -1,21 +1,26 @@
 using App_practical.Models;
+using App_practical.Services; 
+using Confluent.Kafka; 
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text.Json; 
 
 namespace App_practical.Controllers
 {
     public class HomeController : Controller
     {
         private readonly DatabaseContext _context;
+       
+        private readonly KafkaProducerService<Null, string> _producer;
 
-        
-        public HomeController(DatabaseContext context)
+       
+        public HomeController(DatabaseContext context, KafkaProducerService<Null, string> producer)
         {
             _context = context;
+            _producer = producer;
         }
 
-        
         [HttpGet]
         public IActionResult Index()
         {
@@ -24,9 +29,9 @@ namespace App_practical.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(string value1, string value2, string operation)
+        
+        public async Task<IActionResult> Index(string value1, string value2, string operation)
         {
-            
             if (!double.TryParse(value1.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double v1) ||
                 !double.TryParse(value2.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double v2))
             {
@@ -34,48 +39,47 @@ namespace App_practical.Controllers
                 return View(_context.Variants.ToList());
             }
 
-            
-            double result = operation switch
-            {
-                "Сложить (+)" => v1 + v2,
-                "Вычесть (-)" => v1 - v2,
-                "Умножить (*)" => v1 * v2,
-                "Разделить (/)" => v2 != 0 ? v1 / v2 : 0,
-                "Возвести в степень (^)" => Math.Pow(v1, v2),
-                _ => 0
-            };
-
-           
             if (operation == "Разделить (/)" && v2 == 0)
             {
                 ViewBag.ErrorMessage = "Деление на ноль.";
                 return View(_context.Variants.ToList());
             }
 
-            
+          
             var nuevoCalculo = new Variant
             {
-                Operand1 = v1,
-                Operand2 = v2,
-                Operation = operation,
-                Result = Math.Round(result, 4)
+                Value1 = v1,
+                Value2 = v2,
+                Operation = operation
             };
 
-            _context.Variants.Add(nuevoCalculo); 
-            _context.SaveChanges();             
             
+            var json = JsonSerializer.Serialize(nuevoCalculo);
+            await _producer.ProduceAsync("gonzalez", new Message<Null, string> { Value = json });
 
-            return RedirectToAction("Index"); 
+            
+            return RedirectToAction("Index");
         }
 
         
+        [HttpPost]
+        public IActionResult Callback([FromBody] Variant variant)
+        {
+            if (variant != null)
+            {
+                _context.Variants.Add(variant);
+                _context.SaveChanges();
+            }
+            return Ok();
+        }
+
         public IActionResult Delete(int id)
         {
             var registro = _context.Variants.Find(id);
             if (registro != null)
             {
-                 _context.Variants.Remove(registro); 
-                 _context.SaveChanges(); 
+                _context.Variants.Remove(registro);
+                _context.SaveChanges();
             }
             return RedirectToAction("Index");
         }
