@@ -73,7 +73,7 @@ namespace App_practical.Services
                             var httpClient = _clientFactory.CreateClient();
 
                           
-                            await httpClient.PostAsJsonAsync("http://localhost:5009/Home/Callback", inputData);
+                            await httpClient.PostAsJsonAsync("http://localhost:8080/Home/Callback", inputData);
 
                             Console.WriteLine("KafkaConsumerService: Resultado enviado de vuelta al Callback HTTP.");
                         }
