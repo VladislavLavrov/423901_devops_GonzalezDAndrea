@@ -1,35 +1,30 @@
-namespace App_practical
-{
-    public class Program
+using OpenTelemetry.Metrics;
+
+using OpenTelemetry.Metrics; 
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(meterProviderBuilder =>
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        meterProviderBuilder.AddPrometheusExporter(); 
+        meterProviderBuilder.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel"); 
+        meterProviderBuilder.AddMeter("Microsoft.AspNetCore.Http.Connections"); 
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
 
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
+meterProviderBuilder.AddView("http.server.request.duration",
+            new ExplicitBucketHistogramConfiguration
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days.
-                app.UseHsts();
-            }
+                Boundaries = [0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10]
+            });
+    });
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles(); // Cambiado para compatibilidad con el informe
-            app.UseRouting();
+var app = builder.Build();
 
-            app.UseAuthorization();
-
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            app.Run();
-        }
-    }
-}
+app.UseStaticFiles();
+app.UseRouting();
+app.MapPrometheusScrapingEndpoint(); 
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.Run();

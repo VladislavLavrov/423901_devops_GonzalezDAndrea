@@ -1,8 +1,41 @@
 version: '3.7'
 services:
   web:
-    container_name: web-app-calculator-jenkins
-    hostname: app
+    container_name: 9-calculator-prometheus-grafana
     build: .
     ports:
-      - "0.0.0.0:5209:5009"
+      - "0.0.0.0:5009:5009"
+    networks:
+      - metrics-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/config/:/etc/prometheus/
+      - ./prometheus/data:/prometheus:rw
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9099:9090
+    networks:
+      - metrics-net
+
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+    ports:
+      - 3009:3000
+    environment:
+      GF_RENDERING_SERVER_URL: http://renderer:8081/render
+    networks:
+      - metrics-net
+
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    networks:
+      - metrics-net
+
+networks:
+  metrics-net:
+    name: metrics-net
