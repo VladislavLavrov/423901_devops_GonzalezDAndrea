@@ -10,6 +10,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - red_calculadora_nerio
 
   app:
     build: 
@@ -22,6 +24,15 @@ services:
       - postgres
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - red_calculadora_nerio
 
 volumes:
   postgres_data:
+
+networks:
+  red_calculadora_nerio:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.240.5.0/24
