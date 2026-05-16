@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: Calculator
     ports:
-      - "5432:5432"
+      - "5444:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile
     container_name: calculator_app
     ports:
-      - "5444:5432"
+      - "5008:8080"
     depends_on:
       - postgres
     environment:
