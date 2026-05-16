@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile
     container_name: calculator_app
     ports:
-      - "5008:8080"
+      - "5015:8080"
     depends_on:
       - postgres
     environment:
