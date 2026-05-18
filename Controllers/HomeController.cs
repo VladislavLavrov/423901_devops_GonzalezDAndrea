@@ -11,10 +11,8 @@ namespace App_practical.Controllers
     public class HomeController : Controller
     {
         private readonly DatabaseContext _context;
-       
         private readonly KafkaProducerService<Null, string> _producer;
 
-       
         public HomeController(DatabaseContext context, KafkaProducerService<Null, string> producer)
         {
             _context = context;
@@ -25,27 +23,38 @@ namespace App_practical.Controllers
         public IActionResult Index()
         {
             var historial = _context.Variants.ToList();
-            return View(historial);
+            
+            // 👇 Empaquetamos la lista en el ViewModel que espera tu vista
+            var viewModel = new DataViewModel 
+            { 
+                Variants = historial // (Nota: Si la lista dentro de tu DataViewModel se llama diferente, ajusta "Variants" por ese nombre)
+            };
+            
+            return View(viewModel);
         }
 
         [HttpPost]
-        
         public async Task<IActionResult> Index(string value1, string value2, string operation)
         {
             if (!double.TryParse(value1.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double v1) ||
                 !double.TryParse(value2.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double v2))
             {
                 ViewBag.ErrorMessage = "Было введено неверное число.";
-                return View(_context.Variants.ToList());
+                
+                // 👇 También corregimos aquí cuando hay error al escribir los números
+                var viewModelError = new DataViewModel { Variants = _context.Variants.ToList() };
+                return View(viewModelError);
             }
 
             if (operation == "Разделить (/)" && v2 == 0)
             {
                 ViewBag.ErrorMessage = "Деление на ноль.";
-                return View(_context.Variants.ToList());
+                
+                // 👇 Y también corregimos aquí cuando hay error de división por cero
+                var viewModelDivZero = new DataViewModel { Variants = _context.Variants.ToList() };
+                return View(viewModelDivZero);
             }
 
-          
             var nuevoCalculo = new Variant
             {
                 Value1 = v1,
@@ -53,15 +62,12 @@ namespace App_practical.Controllers
                 Operation = operation
             };
 
-            
             var json = JsonSerializer.Serialize(nuevoCalculo);
             await _producer.ProduceAsync("gonzalez", new Message<Null, string> { Value = json });
 
-            
             return RedirectToAction("Index");
         }
 
-        
         [HttpPost]
         public IActionResult Callback([FromBody] Variant variant)
         {
