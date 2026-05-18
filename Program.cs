@@ -1,13 +1,13 @@
 using App_practical.Models;
-using App_practical.Services; // Necesario para encontrar tu KafkaProducerService
+using App_practical.Services;
 using Microsoft.EntityFrameworkCore;
-using Confluent.Kafka;        // Necesario para el tipo Null de Kafka
+using Confluent.Kafka;       
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-// 👇 AQUÍ ESTÁ LA LÍNEA MÁGICA QUE SOLUCIONA EL ERROR 👇
+builder.Services.AddSingleton<KafkaProducerHandler>();
 builder.Services.AddSingleton<KafkaProducerService<Null, string>>();
 
 builder.Services.AddDbContext<DatabaseContext>(
