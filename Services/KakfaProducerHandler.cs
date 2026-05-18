@@ -6,10 +6,14 @@ namespace App_practical.Services
     {
         public IProducer<Null, string> Handle { get; }
 
-        public KafkaProducerHandler(IConfiguration config)
+        public KafkaProducerHandler()
         {
-            var producerConfig = new ProducerConfig();
-            config.GetSection("Kafka:ProducerSettings").Bind(producerConfig);
+           
+            var producerConfig = new ProducerConfig
+            {
+                BootstrapServers = "kafka:9092"
+            };
+
             Handle = new ProducerBuilder<Null, string>(producerConfig).Build();
         }
 
