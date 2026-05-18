@@ -1,4 +1,4 @@
-﻿using Confluent.Kafka;
+using Confluent.Kafka;
 using App_practical.Models; 
 using System.Text.Json;
 
@@ -6,15 +6,19 @@ namespace App_practical.Services
 {
     public class KafkaConsumerService : BackgroundService
     {
-        private readonly string _topic;
+        private readonly string _topic = "gonzalez";
         private readonly IConsumer<Null, string> _kafkaConsumer;
         private readonly IHttpClientFactory _clientFactory;
 
-        public KafkaConsumerService(IConfiguration config, IHttpClientFactory clientFactory)
+        public KafkaConsumerService(IHttpClientFactory clientFactory)
         {
-            var consumerConfig = new ConsumerConfig();
-            config.GetSection("Kafka:ConsumerSettings").Bind(consumerConfig);
-            _topic = config.GetValue<string>("Kafka:TopicName");
+            var consumerConfig = new ConsumerConfig
+            {
+                BootstrapServers = "kafka:9092",
+                GroupId = "calculator-group",
+                AutoOffsetReset = AutoOffsetReset.Earliest
+            };
+
             _kafkaConsumer = new ConsumerBuilder<Null, string>(consumerConfig).Build();
             _clientFactory = clientFactory;
         }
@@ -26,14 +30,12 @@ namespace App_practical.Services
 
         private async Task StartConsumerLoop(CancellationToken cancellationToken)
         {
-            Console.WriteLine("KafkaConsumerService: Iniciando suscripción al tópico...");
             _kafkaConsumer.Subscribe(_topic);
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-           
                     var cr = _kafkaConsumer.Consume(cancellationToken);
 
                     if (cr.Message != null)
@@ -42,9 +44,6 @@ namespace App_practical.Services
 
                         if (inputData != null)
                         {
-                            Console.WriteLine($"KafkaConsumerService: Mensaje recibido. Calculando: {inputData.Value1} {inputData.Operation} {inputData.Value2}");
-
-
                             switch (inputData.Operation)
                             {
                                 case "Сложить (+)":
@@ -67,15 +66,8 @@ namespace App_practical.Services
                                     break;
                             }
 
-                            Console.WriteLine($"KafkaConsumerService: Resultado calculado exitosamente -> {inputData.Result}");
-
-                       
                             var httpClient = _clientFactory.CreateClient();
-
-                          
                             await httpClient.PostAsJsonAsync("http://localhost:8080/Home/Callback", inputData);
-
-                            Console.WriteLine("KafkaConsumerService: Resultado enviado de vuelta al Callback HTTP.");
                         }
                     }
                 }
@@ -83,9 +75,8 @@ namespace App_practical.Services
                 {
                     break;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Console.WriteLine($"KafkaConsumerService ERROR: {e.Message}");
                     break;
                 }
             }
