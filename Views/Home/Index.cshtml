@@ -1,6 +1,8 @@
-﻿@model App_practical.Models.DataViewModel
+@model App_practical.Models.DataViewModel
+
 <div class="text-center">
     <h1 class="display-4">Калькулятор Docker</h1>
+    
     <form method="post" class="mt-4">
         <input type="text" name="value1" class="form-control mb-2" placeholder="Число 1" required />
         <input type="text" name="value2" class="form-control mb-2" placeholder="Число 2" required />
@@ -13,9 +15,43 @@
         </select>
         <button type="submit" class="btn btn-primary">Вычислить</button>
     </form>
-    @if (Model != null) {
-        <div class="mt-4 alert @(string.IsNullOrEmpty(Model.ErrorMessage) ? "alert-success" : "alert-danger")">
-            @(string.IsNullOrEmpty(Model.ErrorMessage) ? $"Результат: {Model.Result}" : Model.ErrorMessage)
+
+    @if (Model != null && !string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="mt-4 alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model != null && Model.Variants != null && Model.Variants.Any())
+    {
+        <div class="mt-5">
+            <h3>История вычислений</h3>
+            <table class="table table-bordered table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Число 1</th>
+                        <th>Операция</th>
+                        <th>Число 2</th>
+                        <th>Результат</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Variants)
+                    {
+                        <tr>
+                            <td>@item.Value1</td>
+                            <td>@item.Operation</td>
+                            <td>@item.Value2</td>
+                            <td>@item.Result</td>
+                            <td>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Удалить</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
 </div>
