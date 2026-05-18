@@ -1,11 +1,17 @@
 using App_practical.Models;
 using App_practical.Services;
 using Microsoft.EntityFrameworkCore;
-using Confluent.Kafka;       
+using Confluent.Kafka;        
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddHttpClient();
+
+
+builder.Services.AddHostedService<KafkaConsumerService>();
 
 builder.Services.AddSingleton<KafkaProducerHandler>();
 builder.Services.AddSingleton<KafkaProducerService<Null, string>>();
