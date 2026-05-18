@@ -1,17 +1,20 @@
 using App_practical.Models;
+using App_practical.Services; // Necesario para encontrar tu KafkaProducerService
 using Microsoft.EntityFrameworkCore;
+using Confluent.Kafka;        // Necesario para el tipo Null de Kafka
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+// 👇 AQUÍ ESTÁ LA LÍNEA MÁGICA QUE SOLUCIONA EL ERROR 👇
+builder.Services.AddSingleton<KafkaProducerService<Null, string>>();
 
 builder.Services.AddDbContext<DatabaseContext>(
     o => o.UseNpgsql("Host=postgres;Port=5432;Database=Calculator;Username=postgres;Password=admin")
 );
 
 var app = builder.Build();
-
 
 using (var scope = app.Services.CreateScope())
 {
@@ -34,7 +37,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-
 
 async Task WaitForDatabase(DatabaseContext context)
 {
