@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Start Docker Container') {
             steps {
-                sh 'docker compose down'
+                sh 'docker rm -f web-app-calculator-jenkins || true'
                 sh 'docker compose up -d'
             }
         }
